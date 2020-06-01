@@ -121,7 +121,7 @@
                 this.options.singleFieldNode = this.element;
                 this.element.addClass('tagit-hidden-field');
             } else {
-                this.tagList = this.element.find('ul, ol').andSelf().last();
+                this.tagList = this.element.find('ul, ol').addBack().last();
             }
 
             this.tagInput = $('<input type="text" />').addClass('ui-widget-content');
@@ -584,7 +584,42 @@
             this._tags().each(function(index, tag) {
                 that.removeTag(tag, false);
             });
-        }
+        },
+        
+        setTagsEnabled: function(enabledFlag) {
+            // Enable or disable all tags depending on enabledFlag value
+            // if enabledFlag=true: set all tags enabled
+            var that = this;
+            if (!this.tagInput.prop('disabled') && !enabledFlag){
+                this._tags().each(function(index, tag) {
+                    tag = $(tag);
+                    // change class and remove close button
+                    tag.removeClass('tagit-choice-editable').addClass('tagit-choice-read-only').find(".tagit-close").remove();
+                });
+                // disable the input field
+                this.tagInput.prop('disabled', true);
+            } else if (this.tagInput.prop('disabled') && enabledFlag){
+                this._tags().each(function(index, tag) {
+                    tag = $(tag);
+                    // change class and add close button
+                    tag.removeClass('tagit-choice-read-only').addClass('tagit-choice-editable');
+                    var removeTagIcon = $('<span></span>')
+                        .addClass('ui-icon ui-icon-close');
+                    var removeTag = $('<a><span class="text-icon">\xd7</span></a>') // \xd7 is an X
+                        .addClass('tagit-close')
+                        .append(removeTagIcon)
+                        .click(function(e) {
+                            // Removes a tag when the little 'x' is clicked.
+                            that.removeTag(tag);
+                        });
+                    tag.append(removeTag);                     
+
+                });
+                // enable the input field
+                this.tagInput.prop('disabled', false);                
+            }
+
+        }        
 
     });
 })(jQuery);
